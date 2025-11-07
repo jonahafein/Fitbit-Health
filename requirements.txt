@@ -1,0 +1,6 @@
+pyodbc
+fastapi
+pydantic
+azure-identity
+webbrowser
+uvicorn
