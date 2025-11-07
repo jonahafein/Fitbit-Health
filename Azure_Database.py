@@ -72,9 +72,7 @@ class database:
 # df.add_to_azure(table = "sample_table", data = sample_dataframe)
 
 # testing from our data
-
 # df.query("SELECT * FROM heart_data order by date desc")
-
 # df.query("SELECT * FROM sleep_data order by dateOfSleep desc")
 
 
