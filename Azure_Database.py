@@ -24,11 +24,11 @@ class database:
         cursor.execute(query)
         rows = cursor.fetchall()
         df = pd.DataFrame(rows)
+        conn.close()
         if print_results == True:
             print(df)
         return pd.DataFrame(df)
-        #conn.close()
-        #cursor.close()
+
       
     # adds data to specific table in azure database  
     def add_to_azure(self, table, data:pd.DataFrame):
@@ -53,10 +53,10 @@ class database:
  # testing
         
 # initial query      
-# df = database()
-# sample = df.query("SELECT * FROM sample_table", print_results = False)
-# print("sample df:")
-# print(sample)
+df = database()
+sample = df.query("SELECT * FROM sample_table", print_results = False)
+print("sample df:")
+print(sample)
 
 # # sample data to add
 # sample_data = {'Id': [3], 'Name': ['Gershona'], 'Mobile': ['6174475147']}
