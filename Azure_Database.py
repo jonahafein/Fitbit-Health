@@ -6,7 +6,7 @@ import struct, pyodbc
 class database:
     def __init__(self):
         self.connection_string = "Driver=/opt/homebrew/lib/libmsodbcsql.18.dylib;Server=tcp:healthmetricsserver.database.windows.net,1433;Database=Health_Metrics;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
-
+        
     # method needed to connect for other methods
     def get_conn(self):
         credential = identity.DefaultAzureCredential(exclude_interactive_browser_credential = False)
@@ -17,14 +17,16 @@ class database:
         return conn
 
     # returns result of the query
-    def query(self, query: str):
+    def query(self, query: str, print_results = False):
         conn = self.get_conn()
         cursor = conn.cursor()
         print("Connecting to Azure:")
         cursor.execute(query)
         rows = cursor.fetchall()
         df = pd.DataFrame(rows)
-        print(df)
+        if print_results == True:
+            print(df)
+        return pd.DataFrame(df)
         #conn.close()
         #cursor.close()
       
@@ -52,7 +54,9 @@ class database:
         
 # initial query      
 # df = database()
-# df.query("SELECT * FROM sample_table")
+# sample = df.query("SELECT * FROM sample_table", print_results = False)
+# print("sample df:")
+# print(sample)
 
 # # sample data to add
 # sample_data = {'Id': [3], 'Name': ['Gershona'], 'Mobile': ['6174475147']}
