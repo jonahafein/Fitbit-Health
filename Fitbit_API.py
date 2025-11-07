@@ -12,6 +12,7 @@ import pandas as pd
 import threading
 from server import Server
 import subprocess
+from Azure_Database import database
 
 today = date.today()
 hundred_days_ago = today - timedelta(days = 100)
@@ -70,7 +71,6 @@ def get_basic_auth_token():
 def dashboard(request: Request):
     access_token = user_tokens.get('access_token')
     if not access_token:
-        print("doing authentication again")
         return RedirectResponse('/') # does authentication all over again
     
     headers = {
@@ -80,19 +80,85 @@ def dashboard(request: Request):
     # user_id = user_tokens['user_id']
     
     # heart rate data 
-    heart_url = f'https://api.fitbit.com/1/user/-/activities/heart/date/{month_ago}/{today}/1min.json'
+    heart_url = f'https://api.fitbit.com/1/user/-/activities/heart/date/2025-10-30/{today}/1min.json'
     heart_response = requests.get(heart_url, headers = headers)
     heartRateData = heart_response.json()
     heartRateData = heartRateData.get('activities-heart')
-    print(heartRateData)
+    
+    # building the heartrate dataframe
+    heartRateDataFrame = pd.DataFrame()
+    for day in heartRateData:
+        for zone in day.get('value').get('heartRateZones'):
+            zone_df = pd.DataFrame(zone, index = [i for i in range(0, len(day.get('value').get('heartRateZones')))])
+            zone_df['date'] = day.get('dateTime')
+            zone_df['restingHR'] = day.get('value').get('restingHeartRate')
+            heartRateDataFrame = pd.concat([heartRateDataFrame, zone_df], ignore_index = True)
+            
+    heartRateDataFrame_sum = heartRateDataFrame.groupby(['date', 'name'])[['minutes']].sum().reset_index().set_index(['date', 'name']).unstack("name").reset_index()
+    heartRateDataFrame_sum.columns = ['date', 'Cardio Minutes', 'Fat Burn Minutes', 'Out of Range Minutes', 'Peak Minutes']
+    heartRateDataFrame_sum['date'] = pd.to_datetime(heartRateDataFrame_sum['date'])
+    heartRateDataFrame_sum = heartRateDataFrame_sum.sort_values(by = "date", ascending = False).reset_index().drop(columns = ['index'])
+    heartRateDataFrame_sum[['Cardio Minutes', 'Fat Burn Minutes', 'Out of Range Minutes', 'Peak Minutes']] = heartRateDataFrame_sum[['Cardio Minutes', 'Fat Burn Minutes', 'Out of Range Minutes', 'Peak Minutes']].astype(int)
+    heartRateDataFrame_sum = heartRateDataFrame_sum[heartRateDataFrame_sum['Out of Range Minutes'] != 0]
+    
+    dateSet = set(heartRateDataFrame['date'].to_list())
+    dateList = list(dateSet)   
+    
+    restingHRS = []
+    
+    for date in dateList:
+        Date_HR = heartRateDataFrame[heartRateDataFrame['date'] == str(date)].get('restingHR').to_list()[0]
+        restingHRS.append(Date_HR)
+      
+    # creating the clean dataframe showing resting HR
+    heartRateDataFrameClean = pd.DataFrame(list(zip(dateList, restingHRS)))
+    heartRateDataFrameClean.columns = ['date', 'restingHR']
+    heartRateDataFrameClean['date'] = pd.to_datetime(heartRateDataFrameClean['date'])
+    heartRateDataFrameClean = heartRateDataFrameClean.sort_values(by = ['date'], ascending = False).dropna(subset = ['restingHR'])
+    heartRateDataFrameClean['restingHR'] = heartRateDataFrameClean['restingHR'].astype("int")
+    
+    # join the 2 heart rate dataframes together
+    heartRateDataFrameClean = heartRateDataFrame_sum.merge(heartRateDataFrameClean,how = 'left', on = 'date')
+    heartRateDataFrameClean = heartRateDataFrameClean.rename(columns = {'Cardio Minutes': 'cardioMinutes', 'Fat Burn Minutes': 'fatBurnMinutes',
+                                                                        'Out of Range Minutes': 'normalMinutes', 'Peak Minutes': 'peakMinutes'}) 
+    
+    # add in HRV to the data frame
+    url = f"https://api.fitbit.com/1/user/-/hrv/date/2025-10-30/{today}.json"
+    HRV = requests.get(url, headers = headers).json()
+    dates = []
+    dailyRmssd = []
+    deepRmssd = []
+    for day in range(0, len(HRV.get('hrv'))):
+        dates.append(HRV.get('hrv')[day].get('dateTime'))
+        dailyRmssd.append(HRV.get('hrv')[day].get('value').get('dailyRmssd'))
+        deepRmssd.append(HRV.get('hrv')[day].get('value').get('deepRmssd'))
+    
+    HRVdf = pd.DataFrame(list(zip(dates, dailyRmssd, deepRmssd)))
+    HRVdf.columns = ['date','dailyRmssd', 'deepRmssd']
+    HRVdf['date'] = pd.to_datetime(HRVdf['date'])
+    HRVdf = HRVdf.sort_values(by = "date", ascending = False)
+    
+    # merge HRV to other heart stats
+    heartRateDataFrameClean = heartRateDataFrameClean.merge(HRVdf, how = 'left', on = 'date')
+    heartRateDataFrameClean['dailyRmssd'].fillna(heartRateDataFrameClean['dailyRmssd'].mean(), inplace = True)
+    heartRateDataFrameClean['deepRmssd'].fillna(heartRateDataFrameClean['deepRmssd'].mean(), inplace = True)
+    heartRateDataFrameClean[['dailyRmssd', 'deepRmssd']] = heartRateDataFrameClean[['dailyRmssd', 'deepRmssd']].round(2)
+    heartRateDataFrameClean = heartRateDataFrameClean.rename(columns = {'dailyRmssd': 'dailyHRV', 'deepRmssd': 'deepHRV'})
+    
+    # print(heartRateDataFrameClean)
+    
+    # add heart data to azure
+    heart_data_for_azure = database()
+    heart_data_for_azure.add_to_azure(table = "heart_data", data = heartRateDataFrameClean)
+    
+    
 
 if __name__ == "__main__":
     config = Config(app = app, host="127.0.0.1", port=8000, log_level = "info")
     server = Server(config = config)
-    # run and automatically stop server
-    with server.run_in_thread():
+    with server.run_in_thread(): # run and automatically stop server
         print("uvicorn server started")
         webbrowser.open(url = 'http://127.0.0.1:8000')
-        time.sleep(3)
+        time.sleep(20)
         print("stopping uvicorn server")
     print("uvicorn server stopped")

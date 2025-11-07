@@ -34,36 +34,43 @@ class database:
         cursor = conn.cursor()
         if table == "sample_table":
             for index, row in data.iterrows():
-                cursor.execute(f"INSERT INTO {table}(Id, Name, Mobile) VALUES (?, ?, ?)", row.Id, row.Name, row.Mobile)
-        #cursor.commit()
-        #cursor.close()
+                cursor.execute(f"INSERT INTO {table} (Id, Name, Mobile) VALUES (?, ?, ?)", row.Id, row.Name, row.Mobile)
+                cursor.commit()
+            cursor.close()
         if table == "sleep_data":
             for index, row in data.iterrows():
                 cursor.execute(f"INSERT INTO {table}(dateOfSleep, infoCode, sleepScore, startTime, endTime, isMainSleep, timeAsleep, timeAwake) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", row.dateOfSleep, row.infoCode, row.sleepScore, row.startTime, row.endTime, row.isMainSleep, row.timeAsleep, row.timeAwake)
-        #cursor.commit()
-        #cursor.close()
+                cursor.commit()
+            cursor.close()
         if table == "heart_data":
             for index, row in data.iterrows():
-                cursor.execute(f"INSERT INTO {table} (heart_date, cardioMinutes, fatBurnMinutes, normalMinutes, peakMinutes, restingHR, dailyHRV, deepHRV) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", row.date, row.cardioMinutes, row.fatBurnMinutes, row.normalMinutes, row.peakMinutes, row.restingHR, row.dailyHRV, row.deepHRV)
-        #cursor.commit()
-        #cursor.close()
+                cursor.execute(f"INSERT INTO {table}(date, cardioMinutes, fatBurnMinutes, normalMinutes, peakMinutes, restingHR, dailyHRV, deepHRV) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", row.date, row.cardioMinutes, row.fatBurnMinutes, row.normalMinutes, row.peakMinutes, row.restingHR, row.dailyHRV, row.deepHRV)
+                cursor.commit()
+            cursor.close()
 
  # testing
         
 # initial query      
-df = database()
-df.query("SELECT * FROM sample_table")
+# df = database()
+# df.query("SELECT * FROM sample_table")
 
 # # sample data to add
 # sample_data = {'Id': [3], 'Name': ['Gershona'], 'Mobile': ['6174475147']}
 # sample_dataframe = pd.DataFrame(sample_data)
-
+# for inx,row in sample_dataframe.iterrows():
+#     print(row)
 # print()
 
 # # add data into azure
 # df.add_to_azure(table = "sample_table", data = sample_dataframe)
 # # make sure it was added
 # df.query("SELECT * FROM sample_table")
+
+# df = database()
+# sample_data = {'Id': [6], 'Name': ['Blair'], 'Mobile': ['9076134899']}
+# sample_dataframe = pd.DataFrame(sample_data)
+# df.add_to_azure(table = "sample_table", data = sample_dataframe)
+# df.query("SELECT * FROM heart_data order by date desc")
 
 
 
