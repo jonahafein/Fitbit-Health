@@ -66,7 +66,7 @@ class database:
 # # make sure it was added
 # df.query("SELECT * FROM sample_table")
 
-df = database()
+# df = database()
 # sample_data = {'Id': [6], 'Name': ['Blair'], 'Mobile': ['9076134899']}
 # sample_dataframe = pd.DataFrame(sample_data)
 # df.add_to_azure(table = "sample_table", data = sample_dataframe)
@@ -75,7 +75,7 @@ df = database()
 
 # df.query("SELECT * FROM heart_data order by date desc")
 
-df.query("SELECT * FROM sleep_data order by dateOfSleep desc")
+# df.query("SELECT * FROM sleep_data order by dateOfSleep desc")
 
 
 

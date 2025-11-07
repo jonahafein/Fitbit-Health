@@ -178,8 +178,8 @@ def dashboard(request: Request):
     # print(sleep_dataframe_display.dtypes)
     
     # add sleep data to azure
-    sleep_data_for_azure = database()
-    sleep_data_for_azure.add_to_azure(table = "sleep_data", data = sleep_dataframe_display)
+    # sleep_data_for_azure = database()
+    # sleep_data_for_azure.add_to_azure(table = "sleep_data", data = sleep_dataframe_display)
     
 
 if __name__ == "__main__":
