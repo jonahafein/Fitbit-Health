@@ -148,9 +148,38 @@ def dashboard(request: Request):
     # print(heartRateDataFrameClean)
     
     # add heart data to azure
-    heart_data_for_azure = database()
-    heart_data_for_azure.add_to_azure(table = "heart_data", data = heartRateDataFrameClean)
+    # heart_data_for_azure = database()
+    # heart_data_for_azure.add_to_azure(table = "heart_data", data = heartRateDataFrameClean)
     
+    # sleep data
+    sleep_url = f'https://api.fitbit.com/1.2/user/-/sleep/date/2025-10-30/{today}.json'
+    sleep_response = requests.get(sleep_url, headers = headers)
+    sleep_dataframe = pd.DataFrame(sleep_response.json().get('sleep', {}))
+    sleep_dataframe_display = sleep_dataframe[['dateOfSleep', 'infoCode',
+                                       'efficiency', 'startTime', 
+                                       'endTime', 'isMainSleep', 
+                                       'minutesAwake', 'minutesAsleep']]
+    
+    #               Future Enhancements:
+    # could include a key to variable meanings on the site
+    # could add levels back in but will need to parse results out
+    
+    # data wrangling
+    sleep_dataframe_display = sleep_dataframe_display.rename(columns = {'efficiency': 'sleepScore'})
+    sleep_dataframe_display['timeAsleep'] = pd.to_datetime(sleep_dataframe_display['minutesAsleep'], 
+                                                               unit = "m").dt.strftime("%H:%M").astype(str)
+    sleep_dataframe_display['timeAwake'] = pd.to_datetime(sleep_dataframe_display['minutesAwake'], 
+                                                               unit = "m").dt.strftime("%H:%M").astype(str)
+    sleep_dataframe_display = sleep_dataframe_display.drop(columns = ['minutesAsleep', 'minutesAwake'])
+
+    sleep_dataframe_display['startTime'] = pd.to_datetime(sleep_dataframe_display['startTime']).dt.strftime('%Y-%m-%d %H:%M')
+    sleep_dataframe_display['endTime'] = pd.to_datetime(sleep_dataframe_display['endTime']).dt.strftime('%Y-%m-%d %H:%M')
+    
+    # print(sleep_dataframe_display.dtypes)
+    
+    # add sleep data to azure
+    sleep_data_for_azure = database()
+    sleep_data_for_azure.add_to_azure(table = "sleep_data", data = sleep_dataframe_display)
     
 
 if __name__ == "__main__":
