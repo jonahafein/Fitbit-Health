@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+    .infoCode_header {
+        position: relative;
+        top: 63px;   
+        left: 800px;  
+    }
+    </style>
+    <style>
+        .sleep_data_header {
+            position: relative;
+            left: 15px; 
+            top: -170px; 
+        }
+        </style>
+    <style>
+        .page_header {
+            position: relative;
+            top: -10px;   
+        }
+    </style>
+
+    <style>
+        .last_week_sleep_header {
+            position: relative;
+            bottom: 493px;
+            left: 800px;   
+        }
+    </style>
+    <style>
+        .last_month_sleep_header {
+            position: relative;
+            bottom: 753px;
+            left: 1110px;   
+        }
+    </style>
+
+    <style>
+        .last_week_sleep_table {
+            position: relative;
+            top: -503px;
+            right: -800px;
+        }
+    </style>
+    <style>
+        .last_month_sleep_table {
+            position: relative;
+            top: -764px;
+            right: -1110px;
+        }
+    </style>
+
+    <style>
+        .sleep_table_position {
+            position: relative;
+            top: -175px;
+            left: 10px;
+        }
+    </style>
+
+    <style>
+        .avgBedtimeLastWkHeader {
+            position: relative;
+            top: -770px;
+            left: 800px;
+        }
+    </style>
+    <style>
+        .avgBedtimeLastWkStat {
+            position: relative;
+            top: -810px;
+            left: 1007px;
+        }
+    </style>
+
+    <style>
+        .avgBedtimeLastMonthHeader {
+            position: relative;
+            top: -850px;
+            left: 1110px;
+        }
+    </style>
+    <style>
+        .avgBedtimeLastMonthStat {
+            position: relative;
+            top: -890px;
+            left: 1327px;
+        }
+    </style>
+    <style>
+        .avgWakeupLastWkHeader {
+            position: relative;
+            top: -900px;
+            left: 800px;
+        }
+    </style>
+    <style>
+        .avgWakeupLastWkStat {
+            position: relative;
+            top: -940px;
+            left: 1007px;
+        }
+    </style>
+
+    <style>
+        .avgWakeupLastMonthHeader {
+            position: relative;
+            top: -980px;
+            left: 1110px;
+        }
+    </style>
+    <style>
+        .avgWakeupLastMonthStat {
+            position: relative;
+            top: -1020px;
+            left: 1327px;
+        }
+    </style>
+    <style>
+        .HeartDataHeader{
+            position: relative;
+            top: -1010px;
+            left: 15px;
+        }
+    </style>
+    <style>
+        .HeartDataTable{
+            position: relative;
+            top: -1013px;
+            left: 8px;
+        }
+    </style>
+    <style>
+        .NumNapsWKHeader{
+            position: relative;
+            top: -2450px;
+            left: 800px;
+        }
+    </style>
+    <style>
+        .NumNapsWKStat{
+            position: relative;
+            top: -2450px;
+            left: 800px;
+        }
+    </style>
+    <style>
+        .NumNapsMonthHeader{
+            position: relative;
+            top: -2530px;
+            left: 1030px;
+        }
+    </style>
+    <style>
+        .NumNapsMonthStat{
+            position: relative;
+            top: -2530px;
+            left: 1030px;
+        }
+    </style>
+
+    <title>Fitbit Dashboard</title>
+<h1 class = "page_header" style="text-align: center;">Jonah Fein Health Data</h1>
+<h4 class = "infoCode_header">infoCode:<br><span style="font-weight: normal;">
+    0 = Sufficient data to generate a sleep log.<br>
+    1 = Insufficient heart rate data.<br>
+    2 = Sleep period was too short (less than 3 hours).<br>
+    3 = Server-side issue when generating the sleep log. No data impact.</span><br>
+    <br>isMainSleep:<br><span style = "font-weight: normal;">False if it was a nap.</span>
+</h4>
+    <h1 class = "sleep_data_header">Sleep Data:</h1>
+    <h4 class = "sleep_table_position" style="font-weight: normal;">
+    {{ sleep_data | safe }}
+    </h4>
+    <h3 class = "last_week_sleep_header">Last Week Summary:</h3>
+    <h4 class = "last_week_sleep_table" style="font-weight: normal;">
+        {{last_week_summary| safe}}
+    </h4>
+    <h3 class = "last_month_sleep_header">Last Month Summary:</h3>
+    <h4 class = "last_month_sleep_table" style="font-weight: normal;">
+    {{last_month_summary | safe}}
+    </h4>
+    <h4 class = "avgBedtimeLastWkHeader">Average Bedtime Last Week:</h4>
+    <h4 class = "avgBedtimeLastWkStat" style="font-weight: normal;">{{avg_bedtime_last_week}}</h4>
+    <h4 class = "avgBedtimeLastMonthHeader">Average Bedtime Last Month:</h4>
+    <h4 class = "avgBedtimeLastMonthStat" style="font-weight: normal;">{{avg_bedtime_last_month}}</h4>
+    <h4 class = "avgWakeupLastWkHeader">Average Wakeup Last Week:</h4>
+    <h4 class = "avgWakeupLastWkStat" style = "font-weight: normal;">{{avgWakeupLastWK}}</h4>
+    <h4 class = "avgWakeupLastMonthHeader">Average Wakeup Last Month:</h4>
+    <h4 class = "avgWakeupLastMonthStat" style = "font-weight: normal;">{{avgWakeupLastMonth}}</h4>
+    <h1 class = "HeartDataHeader">Heart Data:</h1>
+    <h4 class = "HeartDataTable" style = "font-weight: normal;">{{heartDataFrame | safe}}</h4>
+    <h4 class = "NumNapsWKHeader">Number of Naps Last Week: <h4>
+    <h4 class = "NumNapsWKStat" style = "font-weight: normal">{{napsLastWK}}<h4>
+    <h4 class = "NumNapsMonthHeader">Number of Naps Last Month: <h4>
+    <h4 class = "NumNapsMonthStat" style = "font-weight: normal">{{napsLastMonth}}<h4>
+</html>

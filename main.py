@@ -218,31 +218,20 @@ def dashboard(request: Request):
     # dropping date and count
     last_month_summary = round(last_month_summary.drop(columns = ['dateOfSleep']).drop(index = last_month_summary.index[0]), 2)
     
-    
-    # return template.TemplateResponse(
-    #     'dashboard.html',
-    #     {'request': request, 
-    #      'sleep_data': sleep_dataframe_display.to_html(),
-    #      'last_week_summary': last_week_summary.to_html(),
-    #      'last_month_summary': last_month_summary.to_html(),
-    #      'avg_bedtime_last_week': avgBedtimeLastWk,
-    #      'avg_bedtime_last_month': avgBedtimeLastMonth,
-    #      'avgWakeupLastWK': avgWakeupLastWk,
-    #      'avgWakeupLastMonth': avgWakeupLastMonth,
-    #      'heartDataFrame': heartRateDataFrameClean.to_html(),
-    #      'napsLastWK': number_naps_lastWK,
-    #      'napsLastMonth': number_naps_lastMonth}
-    # )
-    print("last week:")
-    print(last_week_summary)
-    print("last month:")
-    print(last_month_summary)
-    print("avg_bedtime_last_week")
-    print(avgBedtimeLastWk)
-    print("avg_bedtime_last_month")
-    print(avgBedtimeLastMonth)
-    print('napsLastWK')
-    print(number_naps_lastWK)
+    return template.TemplateResponse(
+        'dashboard.html',
+        {'request': request, 
+         'sleep_data': sleep_dataframe_display.to_html(),
+         'last_week_summary': last_week_summary.to_html(),
+         'last_month_summary': last_month_summary.to_html(),
+         'avg_bedtime_last_week': avgBedtimeLastWk,
+         'avg_bedtime_last_month': avgBedtimeLastMonth,
+         'avgWakeupLastWK': avgWakeupLastWk,
+         'avgWakeupLastMonth': avgWakeupLastMonth,
+         'heartDataFrame': heartRateDataFrameClean.to_html(),
+         'napsLastWK': number_naps_lastWK,
+         'napsLastMonth': number_naps_lastMonth}
+    )
 
 if __name__ == "__main__":
     webbrowser.open(url = 'http://127.0.0.1:8000') 
