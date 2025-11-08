@@ -8,11 +8,12 @@ import webbrowser
 from datetime import date, timedelta
 import pandas as pd
 from Azure_Database import database
+import config
 
 # improve upon this later
-CLIENT_ID = '23TGR4'
-CLIENT_SECRET = '1fd8731d5b695bc06543916997fea755'
-REDIRECT_URI  = 'http://localhost:8000/callback'
+CLIENT_ID = config.CLIENT_ID
+CLIENT_SECRET = config.CLIENT_SECRET
+REDIRECT_URI  = config.REDIRECT_URI
 
 # helper function for getting the mean bed time and wake up time
 

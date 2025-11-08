@@ -1,11 +1,12 @@
 import pandas as pd
 from azure import identity
 import struct, pyodbc
+import config
 
 # all azure connections will be made in here eventually
 class database:
     def __init__(self):
-        self.connection_string = "Driver=/opt/homebrew/lib/libmsodbcsql.18.dylib;Server=tcp:healthmetricsserver.database.windows.net,1433;Database=Health_Metrics;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
+        self.connection_string = config.connection_string
         
     # method needed to connect for other methods
     def get_conn(self):

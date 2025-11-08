@@ -13,6 +13,7 @@ import threading
 from server import Server
 import subprocess
 from Azure_Database import database
+import config
 
 today = date.today()
 hundred_days_ago = today - timedelta(days = 100)
@@ -25,9 +26,9 @@ app = FastAPI()
 template = Jinja2Templates(directory='templates2')
 
 # improve upon this later
-CLIENT_ID = '23TGR4'
-CLIENT_SECRET = '1fd8731d5b695bc06543916997fea755'
-REDIRECT_URI  = 'http://localhost:8000/callback'
+CLIENT_ID = config.CLIENT_ID
+CLIENT_SECRET = config.CLIENT_SECRET
+REDIRECT_URI  = config.REDIRECT_URI
 
 global user_tokens 
 user_tokens = {}
