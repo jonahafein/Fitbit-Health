@@ -105,126 +105,118 @@ def get_basic_auth_token():
 def dashboard(request: Request):
     heart_df = database()
     heartRateDataFrameClean = heart_df.query("SELECT * FROM heart_data order by date desc")
-    print(heartRateDataFrameClean)
-    print()
+    heartRateDataFrameClean['date'] = pd.to_datetime(heartRateDataFrameClean['date'])
+    last_week_heart = heartRateDataFrameClean[heartRateDataFrameClean['date'] >= pd.to_datetime(seven_days_ago)]
+    last_month_heart = heartRateDataFrameClean[heartRateDataFrameClean['date'] >= pd.to_datetime(month_ago)]
     
+    last_week_heart_summary = round(last_week_heart[['cardioMinutes', 'fatBurnMinutes', 'normalMinutes',
+                                             'peakMinutes', 'restingHR', 'dailyHRV', 'deepHRV']].describe(), 2)
     
-    # last_week_heart = heartRateDataFrameClean[heartRateDataFrameClean['date'] >= str(seven_days_ago)]
-    # last_month_heart = heartRateDataFrameClean[heartRateDataFrameClean['date'] >= str(month_ago)]
+    last_week_heart_summary = last_week_heart[['cardioMinutes', 'fatBurnMinutes', 'normalMinutes',
+                                              'peakMinutes', 'restingHR', 'dailyHRV', 'deepHRV']].describe()
+    last_week_heart_summary = last_week_heart_summary.transpose().reset_index()
+    last_week_heart_summary['count'] = last_week_heart_summary['count'].astype(int)
+    last_week_heart_summary = last_week_heart_summary.transpose()
+    last_week_heart_summary.columns = last_week_heart_summary.iloc[0].to_list()
+    last_week_heart_summary = last_week_heart_summary.iloc[1:]
     
-    # #last_week_heart_summary = round(last_week_heart[['cardioMinutes', 'fatBurnMinutes', 'normalMinutes',
-    # #                                          'peakMinutes', 'restingHR', 'dailyHRV', 'deepHRV']].describe(), 2)
-    
-    # last_week_heart_summary = last_week_heart[['cardioMinutes', 'fatBurnMinutes', 'normalMinutes',
-    #                                           'peakMinutes', 'restingHR', 'dailyHRV', 'deepHRV']].describe()
-    # last_week_heart_summary = last_week_heart_summary.transpose().reset_index()
-    # last_week_heart_summary['count'] = last_week_heart_summary['count'].astype(int)
-    # last_week_heart_summary = last_week_heart_summary.transpose()
-    # last_week_heart_summary.columns = last_week_heart_summary.iloc[0].to_list()
-    # last_week_heart_summary = last_week_heart_summary.iloc[1:]
-    #print(last_week_heart_summary)
-    
-
-    # sleep summary statistics
+    # sleep 
     sleep_df = database()
-    sleep_dataframe = heart_df.query("SELECT * FROM sleep_data order by dateOfSleep desc")
-    print(sleep_dataframe)
-    print()
-
+    sleep_dataframe =  sleep_df.query("SELECT * FROM sleep_data_raw order by dateOfSleep desc")
+    sleep_dataframe_display = sleep_df.query("SELECT * FROM sleep_data_display order by dateOfSleep desc")
+    
     # last week
-    # summary_sleep = sleep_dataframe.copy(deep = True)
-    # summary_sleep['dateOfSleep'] = pd.to_datetime(summary_sleep['dateOfSleep'])
-    # summary_sleep = summary_sleep[['dateOfSleep', 'isMainSleep', 'efficiency', 'minutesAsleep', 'minutesAwake', 'startTime', 'endTime']]
-    # summary_sleep = summary_sleep.rename(columns = {"efficiency": 'sleepScore',
-    #                                                 'minutesAwake': 'timeAwake', 'minutesAsleep': 'timeAsleep'})
+    summary_sleep = sleep_dataframe.copy(deep = True)
+    summary_sleep['dateOfSleep'] = pd.to_datetime(summary_sleep['dateOfSleep'])
+    summary_sleep = summary_sleep[['dateOfSleep', 'isMainSleep', 'efficiency', 'minutesAsleep', 'minutesAwake', 'startTime', 'endTime']]
+    summary_sleep = summary_sleep.rename(columns = {"efficiency": 'sleepScore',
+                                                    'minutesAwake': 'timeAwake', 'minutesAsleep': 'timeAsleep'})
     
-    # # last week specific  
-    # last_week = summary_sleep[summary_sleep['dateOfSleep'] >= pd.to_datetime(seven_days_ago)]
+    # last week specific  
+    last_week = summary_sleep[summary_sleep['dateOfSleep'] >= pd.to_datetime(seven_days_ago)]
     
-    # # get number of naps in the last week
-    # number_naps_lastWK = last_week[last_week['isMainSleep'] == False].shape[0]
-    # # print(number_naps_lastWK)
+    # get number of naps in the last week
+    number_naps_lastWK = last_week[last_week['isMainSleep'] == False].shape[0]
+    # print(number_naps_lastWK)
     
-    # # take out naps
-    # last_week = last_week[last_week['isMainSleep'] == True]
+    # take out naps
+    last_week = last_week[last_week['isMainSleep'] == True]
     
-    # # getting avg bed time last week
-    # count = 0
-    # timeMin = 0
-    # last_week['startTimeNoDate'] = pd.to_datetime(last_week['startTime']).dt.time
-    # for row in last_week['startTimeNoDate']:
-    #     timeMin = timeMin + get_time_min(row)
-    #     count = count + 1
+    # getting avg bed time last week
+    count = 0
+    timeMin = 0
+    last_week['startTimeNoDate'] = pd.to_datetime(last_week['startTime']).dt.time
+    for row in last_week['startTimeNoDate']:
+        timeMin = timeMin + get_time_min(row)
+        count = count + 1
 
-    # avgBedtimeHourLastWK = (timeMin/count)//60
-    # avgBedtimeMinLastWK = (timeMin/count)%60
+    avgBedtimeHourLastWK = (timeMin/count)//60
+    avgBedtimeMinLastWK = (timeMin/count)%60
     
-    # avgBedtimeLastWk = getTime(avgBedtimeHourLastWK, avgBedtimeMinLastWK)
+    avgBedtimeLastWk = getTime(avgBedtimeHourLastWK, avgBedtimeMinLastWK)
     
-    # # getting average wakeup time
-    # count = 0
-    # timeMin = 0
-    # last_week['endTimeNoDate'] = pd.to_datetime(last_week['endTime']).dt.time
-    # for row in last_week['endTimeNoDate']:
-    #     timeMin = timeMin + get_time_min(row)
-    #     count = count + 1
+    # getting average wakeup time
+    count = 0
+    timeMin = 0
+    last_week['endTimeNoDate'] = pd.to_datetime(last_week['endTime']).dt.time
+    for row in last_week['endTimeNoDate']:
+        timeMin = timeMin + get_time_min(row)
+        count = count + 1
         
-    # avgWakeupHourLastWK = (timeMin/count)//60
-    # avgWakeupMinLastWK = (timeMin/count)%60
+    avgWakeupHourLastWK = (timeMin/count)//60
+    avgWakeupMinLastWK = (timeMin/count)%60
     
-    # avgWakeupLastWk = getTime(avgWakeupHourLastWK, avgWakeupMinLastWK)
+    avgWakeupLastWk = getTime(avgWakeupHourLastWK, avgWakeupMinLastWK)
     
-    # last_week_summary = last_week.describe()
-    # last_week_summary['timeAsleep'] = pd.to_datetime(last_week_summary['timeAsleep'], unit = 'm').dt.strftime("%H:%M")
-    # last_week_summary['timeAwake'] = pd.to_datetime(last_week_summary['timeAwake'], unit = 'm').dt.strftime("%H:%M")
+    last_week_summary = last_week.describe()
+    last_week_summary['timeAsleep'] = pd.to_datetime(last_week_summary['timeAsleep'], unit = 'm').dt.strftime("%H:%M")
+    last_week_summary['timeAwake'] = pd.to_datetime(last_week_summary['timeAwake'], unit = 'm').dt.strftime("%H:%M")
     
-    # # dropping date and count
-    # last_week_summary = round(last_week_summary.drop(columns = ['dateOfSleep']).drop(index = last_week_summary.index[0]), 2)
+    # dropping date and count
+    last_week_summary = round(last_week_summary.drop(columns = ['dateOfSleep']).drop(index = last_week_summary.index[0]), 2)
     
-    # # last month specific
-    # last_month = summary_sleep[summary_sleep['dateOfSleep'] >= pd.to_datetime(month_ago)]
+    # last month specific
+    last_month = summary_sleep[summary_sleep['dateOfSleep'] >= pd.to_datetime(month_ago)]
     
-    # # number of naps last month
-    # number_naps_lastMonth = last_month[last_month['isMainSleep'] == False].shape[0]
-    # # print(number_naps_lastMonth)
+    # number of naps last month
+    number_naps_lastMonth = last_month[last_month['isMainSleep'] == False].shape[0]
+    # print(number_naps_lastMonth)
     
-    # # take out naps
-    # last_month = last_month[last_month['isMainSleep'] == True]
+    # take out naps
+    last_month = last_month[last_month['isMainSleep'] == True]
     
-    # # getting avg bed time last month
-    # count = 0
-    # timeMin = 0
-    # last_month['startTimeNoDate'] = pd.to_datetime(last_month['startTime']).dt.time
-    # for row in last_month['startTimeNoDate']:
-    #     timeMin = timeMin + get_time_min(row)
-    #     count = count + 1
+    # getting avg bed time last month
+    count = 0
+    timeMin = 0
+    last_month['startTimeNoDate'] = pd.to_datetime(last_month['startTime']).dt.time
+    for row in last_month['startTimeNoDate']:
+        timeMin = timeMin + get_time_min(row)
+        count = count + 1
 
-    # avgBedtimeHourLastMonth = (timeMin/count)//60
-    # avgBedtimeMinLastMonth = (timeMin/count)%60
+    avgBedtimeHourLastMonth = (timeMin/count)//60
+    avgBedtimeMinLastMonth = (timeMin/count)%60
     
-    # avgBedtimeLastMonth = getTime(avgBedtimeHourLastMonth, avgBedtimeMinLastMonth) 
+    avgBedtimeLastMonth = getTime(avgBedtimeHourLastMonth, avgBedtimeMinLastMonth) 
     
-    # # getting avg wakeup time past month
-    # count = 0
-    # timeMin = 0
-    # last_month['endTimeNoDate'] = pd.to_datetime(last_month['endTime']).dt.time
-    # for row in last_month['endTimeNoDate']:
-    #     timeMin = timeMin + get_time_min(row)
-    #     count = count + 1
+    # getting avg wakeup time past month
+    count = 0
+    timeMin = 0
+    last_month['endTimeNoDate'] = pd.to_datetime(last_month['endTime']).dt.time
+    for row in last_month['endTimeNoDate']:
+        timeMin = timeMin + get_time_min(row)
+        count = count + 1
         
-    # avgWakeupHourLastMonth = (timeMin/count)//60
-    # avgWakeupMinLastMonth = (timeMin/count)%60
+    avgWakeupHourLastMonth = (timeMin/count)//60
+    avgWakeupMinLastMonth = (timeMin/count)%60
     
-    # avgWakeupLastMonth = getTime(avgWakeupHourLastMonth, avgWakeupMinLastMonth)  
+    avgWakeupLastMonth = getTime(avgWakeupHourLastMonth, avgWakeupMinLastMonth)  
     
-    # last_month_summary = last_month.describe()
-    # last_month_summary['timeAsleep'] = pd.to_datetime(last_month_summary['timeAsleep'], unit = 'm').dt.strftime("%H:%M")
-    # last_month_summary['timeAwake'] = pd.to_datetime(last_month_summary['timeAwake'], unit = 'm').dt.strftime("%H:%M")
+    last_month_summary = last_month.describe()
+    last_month_summary['timeAsleep'] = pd.to_datetime(last_month_summary['timeAsleep'], unit = 'm').dt.strftime("%H:%M")
+    last_month_summary['timeAwake'] = pd.to_datetime(last_month_summary['timeAwake'], unit = 'm').dt.strftime("%H:%M")
     
-    # # dropping date and count
-    # last_month_summary = round(last_month_summary.drop(columns = ['dateOfSleep']).drop(index = last_month_summary.index[0]), 2)
-    
-    #print(last_week_summary)
+    # dropping date and count
+    last_month_summary = round(last_month_summary.drop(columns = ['dateOfSleep']).drop(index = last_month_summary.index[0]), 2)
     
     
     # return template.TemplateResponse(
@@ -241,7 +233,16 @@ def dashboard(request: Request):
     #      'napsLastWK': number_naps_lastWK,
     #      'napsLastMonth': number_naps_lastMonth}
     # )
-
+    print("last week:")
+    print(last_week_summary)
+    print("last month:")
+    print(last_month_summary)
+    print("avg_bedtime_last_week")
+    print(avgBedtimeLastWk)
+    print("avg_bedtime_last_month")
+    print(avgBedtimeLastMonth)
+    print('napsLastWK')
+    print(number_naps_lastWK)
 
 if __name__ == "__main__":
     webbrowser.open(url = 'http://127.0.0.1:8000') 
