@@ -15,8 +15,6 @@ CLIENT_ID = CLIENT_ID
 CLIENT_SECRET = CLIENT_SECRET
 REDIRECT_URI  = REDIRECT_URI
 
-print(CLIENT_ID)
-
 # helper function for getting the mean bed time and wake up time
 
 # maybe move these functions to another file or make some class
