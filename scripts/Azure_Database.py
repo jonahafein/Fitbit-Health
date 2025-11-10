@@ -1,7 +1,7 @@
 import pandas as pd
 from azure import identity
 import struct, pyodbc
-import config
+from . import config
 
 # all azure connections will be made in here eventually
 class database:

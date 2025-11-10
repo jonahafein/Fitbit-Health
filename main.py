@@ -7,13 +7,15 @@ import uvicorn
 import webbrowser
 from datetime import date, timedelta
 import pandas as pd
-from Azure_Database import database
-import config
+from scripts.Azure_Database import database
+from scripts.config import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI
 
 # improve upon this later
-CLIENT_ID = config.CLIENT_ID
-CLIENT_SECRET = config.CLIENT_SECRET
-REDIRECT_URI  = config.REDIRECT_URI
+CLIENT_ID = CLIENT_ID
+CLIENT_SECRET = CLIENT_SECRET
+REDIRECT_URI  = REDIRECT_URI
+
+print(CLIENT_ID)
 
 # helper function for getting the mean bed time and wake up time
 
