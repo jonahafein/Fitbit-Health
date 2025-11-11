@@ -10,13 +10,18 @@ import time
 from datetime import date, timedelta
 import pandas as pd
 import threading
-from scripts.server import Server
 import subprocess
+import sys
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) # .. -- go up one folder, path.abspath makes it an interpretable file path
+sys.path.append(project_root)
+
 from scripts.Azure_Database import database
 from scripts.config import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI
+from scripts.server import Server
 
 class Fitbit_App():
-    def __init__(self, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI):
+    def __init__(self):
         # config variables
         self.CLIENT_ID = CLIENT_ID
         self.CLIENT_SECRET = CLIENT_SECRET
@@ -33,7 +38,7 @@ class Fitbit_App():
         self.fourteen_days_ago = self.today - timedelta(days = 14)
         self.month_ago = self.today - timedelta(days = 30)
         self.first_day = '2025-09-29'
-        
+     
     def login(self):
         params = {
             'response_type': 'code',
