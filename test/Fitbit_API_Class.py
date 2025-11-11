@@ -20,17 +20,18 @@ from scripts.Azure_Database import database
 from scripts.config import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI
 from scripts.server import Server
 
+app = FastAPI()
+
 class Fitbit_App():
     def __init__(self):
         # config variables
         self.CLIENT_ID = CLIENT_ID
         self.CLIENT_SECRET = CLIENT_SECRET
         self.REDIRECT_URI = REDIRECT_URI
-        
-        # app and templating
-        self.app = FastAPI()
+
         self.template = Jinja2Templates(directory='templates2') 
         self.user_tokens = {}
+        self.app = app
         
         self.today = date.today()
         self.hundred_days_ago = self.today - timedelta(days = 100)
@@ -38,7 +39,8 @@ class Fitbit_App():
         self.fourteen_days_ago = self.today - timedelta(days = 14)
         self.month_ago = self.today - timedelta(days = 30)
         self.first_day = '2025-09-29'
-     
+    
+    @app.get('/')
     def login(self):
         params = {
             'response_type': 'code',
@@ -50,6 +52,7 @@ class Fitbit_App():
         url = "https://www.fitbit.com/oauth2/authorize?" + urllib.parse.urlencode(params)
         return RedirectResponse(url)
 
+    @app.get('/callback')
     def callback(self, code:str):
         token_url = 'https://api.fitbit.com/oauth2/token' # base url is api.fitbit.com and oauth2/token' is authorization endpoint
         headers = {
@@ -72,6 +75,7 @@ class Fitbit_App():
     def get_basic_auth_token(self):
         return base64.b64encode(f'{CLIENT_ID}:{CLIENT_SECRET}'.encode()).decode()
     
+    @app.get('/dashboard')
     def dashboard(self,request: Request):
         access_token = self.user_tokens.get('access_token')
         if not access_token:
